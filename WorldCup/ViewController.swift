@@ -29,7 +29,7 @@
 import UIKit
 import CoreData
 
-class ViewController: UIViewController, NSFetchedResultsControllerDelegate {
+class ViewController: UIViewController {
 
   
   // MARK: - Properties
@@ -43,7 +43,7 @@ class ViewController: UIViewController, NSFetchedResultsControllerDelegate {
     let sortTeam = NSSortDescriptor(key: "teamName", ascending: true)
     let sortContinent = NSSortDescriptor(key: "qualifyingZone", ascending: true)
     let sortWins = NSSortDescriptor(key: "wins", ascending: true)
-    fetchRequest.sortDescriptors = [sortTeam, sortContinent, sortWins]
+    fetchRequest.sortDescriptors = [sortContinent, sortWins, sortTeam]
 
 let fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: coreDataStack.managedContext, sectionNameKeyPath: #keyPath(Team.qualifyingZone), cacheName: nil)
     fetchedResultsController.delegate = self
@@ -114,13 +114,20 @@ extension ViewController: UITableViewDataSource {
 
 // MARK: - UITableViewDelegate
 extension ViewController: UITableViewDelegate {
-
+  
   func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
     let team = fetchedResultsController.object(at: indexPath)
-    team.wins = team.wins + 1
+    team.wins += 1
     coreDataStack.saveContext()
-    //tableView.reloadData()
+//    tableView.reloadData()
   }
+  
+  func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+    return fetchedResultsController.sections?[section].name
+  }
+}
+
+extension ViewController: NSFetchedResultsControllerDelegate {
   
   func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
     tableView.beginUpdates()
